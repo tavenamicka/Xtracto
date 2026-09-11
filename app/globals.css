@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f5f6fa;
+  --color-surface: #ffffff;
+  --color-border: #e2e4ec;
+  --color-foreground: #1e2230;
+  --color-muted: #6b7280;
+
+  --color-brand: #4f46e5;
+  --color-brand-hover: #4338ca;
+  --color-brand-foreground: #ffffff;
+  --color-accent: #0d9488;
+
+  --color-danger: #dc2626;
+  --color-success: #059669;
+  --color-warning: #d97706;
+
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-foreground: var(--color-foreground);
+  --color-muted: var(--color-muted);
+  --color-brand: var(--color-brand);
+  --color-brand-hover: var(--color-brand-hover);
+  --color-accent: var(--color-accent);
+  --color-danger: var(--color-danger);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: var(--color-brand);
+  color: var(--color-brand-foreground);
+  padding: 0.5rem 1rem;
+  border-radius: var(--r-sm);
+}
+
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-brand);
+  color: var(--color-brand-foreground);
+  border-radius: var(--r-md);
+  padding: 0.65rem 1.25rem;
+  font-weight: 600;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-brand-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  padding: 0.6rem 1.15rem;
+  font-weight: 500;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--color-brand);
+  background: color-mix(in srgb, var(--color-brand) 6%, var(--color-surface));
+}
+
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.input-field {
+  display: block;
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  padding: 0.7rem 0.9rem;
+  color: var(--color-foreground);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.input-field:focus-visible,
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-brand) 20%, transparent);
+}
+
+.input-field[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+}
+
+.progress-track {
+  width: 100%;
+  height: 0.6rem;
+  background: var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-brand);
+  border-radius: 999px;
+  transition: width 400ms ease;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.badge-pending { background: color-mix(in srgb, var(--color-muted) 15%, transparent); color: var(--color-muted); }
+.badge-processing { background: color-mix(in srgb, var(--color-brand) 15%, transparent); color: var(--color-brand); }
+.badge-done { background: color-mix(in srgb, var(--color-success) 15%, transparent); color: var(--color-success); }
+.badge-error { background: color-mix(in srgb, var(--color-danger) 15%, transparent); color: var(--color-danger); }

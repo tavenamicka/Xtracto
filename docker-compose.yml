@@ -1,0 +1,57 @@
+# xtracto — stack de production.
+# Accès direct : http://192.168.1.23:4100 (proxié en HTTPS par Nginx sur xtracto.tranevat.fr)
+name: xtracto
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: xtracto:latest
+    container_name: xtracto-app
+    restart: always
+    ports:
+      # Bindé sur l'IP LAN, jamais 0.0.0.0 (cf. INFRASTRUCTURE.md §1) : Docker
+      # insère ses règles iptables en amont d'UFW, un port publié sur 0.0.0.0
+      # n'est filtré par aucune règle du firewall. Nginx proxy_pass vise déjà
+      # 192.168.1.23:4100, donc l'accès public n'est pas affecté.
+      - "192.168.1.23:4100:3000" # hôte 4100 -> conteneur 3000 (Next)
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env.production
+    environment:
+      OUTPUT_ROOT: /data/output
+    volumes:
+      - /mnt/media/xtracto-output:/data/output
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    image: xtracto-worker:latest
+    container_name: xtracto-worker
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env.production
+    environment:
+      OUTPUT_ROOT: /data/output
+    volumes:
+      - /mnt/media/xtracto-output:/data/output
+
+  postgres:
+    image: postgres:16
+    container_name: xtracto-postgres
+    restart: always
+    # POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB viennent de .env.production.
+    env_file: .env.production
+    volumes:
+      - /home/mickatch/xtracto/db:/var/lib/postgresql/data
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12

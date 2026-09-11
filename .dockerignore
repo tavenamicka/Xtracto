@@ -1,0 +1,16 @@
+# Datadir Postgres (bind-mount du service postgres, cf. docker-compose.yml).
+# Il appartient à root et vit dans le repo : sans cette exclusion, le build de
+# l'image app échoue dès que Postgres l'a créé ("error from sender: open
+# /home/mickatch/xtracto/db: permission denied"), le daemon n'ayant pas le
+# droit de lire le contexte.
+db/
+
+# Reconstruits dans l'image (étapes deps/builder) — les envoyer ne ferait
+# qu'alourdir le contexte, et un node_modules compilé sous Windows casserait
+# le build Alpine.
+node_modules/
+.next/
+
+.git/
+.env*
+tsconfig.tsbuildinfo
