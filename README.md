@@ -1,39 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Xtracto
 
-## Getting Started
+Interface web qui extrait des pistes audio MP3 depuis une vidéo YouTube (découpées automatiquement par chapitre) ou télécharge la vidéo complète — colle un lien, choisis ce que tu veux récupérer.
 
-First, run the development server:
+## Fonctionnalités
+
+- **Découpage en pistes MP3** : détecte les morceaux d'une vidéo/compilation via ses chapitres ou sa description, encode chaque piste en MP3 320k taggé (titre, pochette extraite automatiquement de la vidéo).
+- **Vidéo complète** : télécharge le MP4 tel quel, sans découpe.
+- **3 modes de découpe** : coupure exacte au timestamp, ou détection de silence avec fondu (court ou long) pour éviter de couper en plein son.
+- **Suivi de progression en temps réel** via une file d'attente de jobs en base.
+- **Accès protégé** par mot de passe partagé (pensé pour un usage personnel/petit groupe, pas de comptes multi-utilisateurs).
+
+## Stack
+
+| Composant | Techno |
+|---|---|
+| Frontend / API | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS |
+| Traitement | Worker Python — [yt-dlp](https://github.com/yt-dlp/yt-dlp) + ffmpeg, numpy/scipy pour la détection de silence, Pillow pour la pochette |
+| Base de données | PostgreSQL (file d'attente de jobs) |
+| Déploiement | Docker Compose + Nginx en reverse proxy |
+
+## Architecture
+
+L'app Next.js crée un job (`tracks` ou `video`) dans la table `jobs` de Postgres. Le worker Python poll cette table, traite le job (téléchargement yt-dlp puis découpe ffmpeg), écrit les fichiers sur un volume de sortie partagé et met à jour la progression en base au fil de l'eau. L'app sert ensuite le téléchargement une fois le job `done`.
+
+## Démarrage rapide (dev local)
+
+Prérequis : Node 22+, Python 3.12+, ffmpeg, une base PostgreSQL accessible.
 
 ```bash
+# Installation
+npm install
+cp .env.example .env.local   # renseigne DATABASE_URL, AUTH_SECRET, XTRACTO_PASSWORD
+
+# Schéma de base
+psql "$DATABASE_URL" -f sql/schema.sql
+
+# Frontend + API
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Worker (dans un autre terminal)
+cd worker
+pip install -r requirements.txt "yt-dlp>=2026.8.19"
+DATABASE_URL=... OUTPUT_ROOT=./output python worker.py
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'app est servie sur [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables d'environnement
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | URL de connexion PostgreSQL |
+| `AUTH_SECRET` | Clé HMAC pour signer les cookies de session (`openssl rand -hex 32`) |
+| `XTRACTO_PASSWORD` | Mot de passe unique protégeant l'accès à l'app |
+| `OUTPUT_ROOT` | Dossier où le worker écrit les fichiers de sortie |
 
-## Learn More
+Voir [.env.example](.env.example).
 
-To learn more about Next.js, take a look at the following resources:
+## Déploiement en production
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Le projet est pensé pour tourner via Docker Compose (voir [docker-compose.yml](docker-compose.yml)) derrière un reverse proxy Nginx avec HTTPS. Étapes détaillées : [deploy/README.md](deploy/README.md).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Limites connues
 
-## Deploy on Vercel
+- yt-dlp doit être mis à jour régulièrement : YouTube change son player suffisamment souvent pour qu'une version figée finisse par échouer au téléchargement (voir le commentaire dans [worker/Dockerfile](worker/Dockerfile)).
+- Taille de téléchargement plafonnée à 3 Go par job (garde-fou disque, ajustable dans [worker/engine/extractor.py](worker/engine/extractor.py)).
+- Pensé pour un usage personnel : pas de gestion multi-utilisateurs, un seul mot de passe partagé.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Licence
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[MIT](LICENSE)
 
 ## Auteur
 
@@ -41,6 +77,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 **Administrateur réseau & systèmes**
 **Consultant coach‑numérique**
-**Développeur full‑stack & créateur d’applications assistées par IA**
+**Développeur full‑stack & créateur d'applications assistées par IA**
 
-> *"L’IA comme moteur, l’humain comme destination."*
+> *"L'IA comme moteur, l'humain comme destination."*
