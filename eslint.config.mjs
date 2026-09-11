@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Bind mount Postgres en prod (appartient a root/ollama, 700) : eslint
+    // plante en EACCES en essayant de le lister depuis le ThinkStation.
+    "db/**",
   ]),
 ]);
 

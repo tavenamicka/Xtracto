@@ -7,7 +7,7 @@ FROM python:3.12-slim
 # "démarré"/"terminé" horodatés à la même microseconde après un redémarrage).
 ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
