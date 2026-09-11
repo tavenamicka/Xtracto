@@ -10,6 +10,7 @@ COPY . .
 RUN npm run build
 
 FROM node:22-alpine AS runner
+RUN apk update && apk upgrade --no-cache
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
