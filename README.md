@@ -2,6 +2,16 @@
 
 Interface web qui extrait des pistes audio MP3 depuis une vidéo YouTube (découpées automatiquement par chapitre) ou télécharge la vidéo complète — colle un lien, choisis ce que tu veux récupérer.
 
+## Aperçu
+
+Captures réalisées sur des données fictives.
+
+| Nouvelle extraction | Suivi en temps réel |
+|---|---|
+| ![Formulaire : lien YouTube, pistes MP3 ou vidéo complète, mode de découpe](docs/screenshots/accueil.png) | ![Job en cours : étape et barre de progression](docs/screenshots/progression.png) |
+
+![Job terminé : pistes MP3 à télécharger une à une ou en .zip](docs/screenshots/resultat-pistes.png)
+
 ## Fonctionnalités
 
 - **Découpage en pistes MP3** : détecte les morceaux d'une vidéo/compilation via ses chapitres ou sa description, encode chaque piste en MP3 320k taggé (titre, pochette extraite automatiquement de la vidéo).
