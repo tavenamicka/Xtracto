@@ -49,4 +49,6 @@ worker/**/__pycache__/
 
 # sorties de jobs (données runtime, pas du code)
 worker/output/
+data/
+db/
 SUIVI.md
